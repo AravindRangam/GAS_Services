@@ -96,6 +96,7 @@ public class AccountLanderServiceDAOImpl implements AccountLanderServiceDAO {
             accountData.setPremiseNumber(accountRow.getPremiseNumber());
             accountData.setBusinessPartnerNumber(accountRow.getBusinessPartnerNumber());
             accountData.setContractInfoData(accountRow.getContractInfo().get(0));
+            accountData.setInstallationInfo(accountRow.getInstallationInfo());
             accountData.setAddress(accountRow.getAddress());
             accountData.setDigitalCommunicationInfo(accountRow.getDigitalCommunicationInfo());
         }

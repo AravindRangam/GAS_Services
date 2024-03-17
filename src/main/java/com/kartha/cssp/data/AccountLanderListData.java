@@ -12,6 +12,8 @@ public class AccountLanderListData implements Serializable{
     private String serviceAddressLine2;
     private String serviceAddressLine3;
     private String wholeName;
+    private String dueDate;
+    private String serviceTypes;
 
     public String getAccountNumber() {
         return accountNumber;
@@ -83,5 +85,21 @@ public class AccountLanderListData implements Serializable{
 
     public void setWholeName(String wholeName) {
         this.wholeName = wholeName;
+    }
+
+    public String getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(String dueDate) {
+        this.dueDate = dueDate;
+    }
+
+    public String getServiceTypes() {
+        return serviceTypes;
+    }
+
+    public void setServiceTypes(String serviceTypes) {
+        this.serviceTypes = serviceTypes;
     }
 }

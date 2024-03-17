@@ -80,6 +80,26 @@ public class AccountLanderServiceImpl implements AccountLanderService {
                             accountLanderListData.setAccountStatus("ACTIVE");
                             accountLanderListData.setPinVerificationRequired(false);
                             accountLanderListData.setWholeName(accountData.getFirstName()+" "+accountData.getLastName());
+                            accountLanderListData.setDueDate(accountData.getContractInfoData().getDueDate());
+
+                            InstallationInfo installationInfo = accountData.getInstallationInfo();
+                            StringBuilder serviceTypes = new StringBuilder();
+                            if(Objects.nonNull(installationInfo)) {
+                                List<InstallationInfoData> installationInfoDataList = installationInfo.getInstallationInfoData();
+                                if(Objects.nonNull(installationInfoDataList)) {
+                                    installationInfoDataList.stream().filter(Objects::nonNull)
+                                            .forEach(installationInfoData -> {
+                                                serviceTypes.append(installationInfoData.getInstallationTypeDesc()).append(",");
+                                            });
+                                }
+                            }
+
+                            // remove last comma from serviceTypes string
+                            if(serviceTypes.length() > 0) {
+                                serviceTypes.deleteCharAt(serviceTypes.length()-1);
+                            }
+                            accountLanderListData.setServiceTypes(serviceTypes.toString());
+
 
                             List<AddressData> addressDataList = accountData.getAddress();
                             Predicate<AddressData> addressDataPredicate = addressData -> "PREMISE".equalsIgnoreCase(addressData.getAddressType());
