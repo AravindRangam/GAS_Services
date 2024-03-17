@@ -20,6 +20,7 @@ import java.util.Objects;
 
 @Slf4j
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("user")
 public class ForgotUserIdPasswordController {
 

@@ -18,6 +18,7 @@ import java.util.Objects;
 
 @Slf4j
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("account")
 public class AccountServiceController {
 

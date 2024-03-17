@@ -16,6 +16,7 @@ import java.util.Objects;
 
 @Slf4j
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("outages")
 public class OutagesServiceController {
 

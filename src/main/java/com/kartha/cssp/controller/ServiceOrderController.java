@@ -15,6 +15,7 @@ import java.util.Objects;
 
 @Slf4j
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("serviceorder")
 public class ServiceOrderController {
 
