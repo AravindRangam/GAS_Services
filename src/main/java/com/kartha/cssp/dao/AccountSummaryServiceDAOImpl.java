@@ -5,6 +5,8 @@ import com.kartha.cssp.exception.CSSPServiceException;
 import com.kartha.cssp.model.*;
 import com.kartha.cssp.utils.CSSPConstants;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -22,6 +24,7 @@ public class AccountSummaryServiceDAOImpl implements AccountSummaryServiceDAO {
     MongoTemplate mongodbTemplate;
     AccountData accountData;
 
+    @Autowired
     public AccountSummaryServiceDAOImpl(MongoTemplate mongodbTemplate,
                                         AccountData accountData) {
         this.mongodbTemplate = mongodbTemplate;
