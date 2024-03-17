@@ -15,6 +15,7 @@ public class CreateUserRequest
     private String userId;
     private String addedFrom;
     private boolean autoRegFlag;
+    private String userRole;
 
     public String getAccountNumber() {
         return accountNumber;
@@ -86,5 +87,13 @@ public class CreateUserRequest
 
     public void setAutoRegFlag(boolean autoRegFlag) {
         this.autoRegFlag = autoRegFlag;
+    }
+
+    public String getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(String userRole) {
+        this.userRole = userRole;
     }
 }

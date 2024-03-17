@@ -147,6 +147,7 @@ public class RegistrationDAOImpl implements RegistrationDAO {
             userManagement.setUserCreatedTS(CommonUtils.getCurrentTimeStamp());
             userManagement.setUserLastUpdatedTS(CommonUtils.getCurrentTimeStamp());
             userManagement.setDefaultAccountNumber(createUserRequest.getAccountNumber());
+            userManagement.setUserRole(createUserRequest.getUserRole());
 
             userAccountInfoData.setAccountNumber(createUserRequest.getAccountNumber());
             userAccountInfoData.setNickName("");

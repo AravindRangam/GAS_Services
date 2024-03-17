@@ -17,6 +17,7 @@ public class UserManagement {
     private String userCreatedTS;
     private String userLastUpdatedTS;
     private List<UserAccountInfoData> userAccountInfo;
+    private String userRole;
 
     public String getId() {
         return id;
@@ -72,6 +73,14 @@ public class UserManagement {
 
     public void setUserAccountInfo(List<UserAccountInfoData> userAccountInfo) {
         this.userAccountInfo = userAccountInfo;
+    }
+
+    public String getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(String userRole) {
+        this.userRole = userRole;
     }
 
 }
