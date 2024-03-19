@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Objects;
@@ -35,7 +36,7 @@ public class AccountLanderServiceController {
     public ResponseEntity getUserIdAccountList(@PathVariable String userId) throws Exception {
 
         CsspServiceResponse csspServiceResponse = accountLanderService.getAccountList(userId, false);
-        if(Objects.nonNull(csspServiceResponse.getData())) {
+        if (Objects.nonNull(csspServiceResponse.getData())) {
             csspServiceResponse.setMessage(new Messages("SUCCESS"));
         }
         return new ResponseEntity<>(csspServiceResponse, HttpStatus.OK);
@@ -44,18 +45,21 @@ public class AccountLanderServiceController {
     @GetMapping(path = "/{userId}/getDefaultAccount", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getDefaultAccount(@PathVariable String userId) throws Exception {
 
-        CsspServiceResponse csspServiceResponse = accountLanderService.getAccountList(userId,true);
-        if(Objects.nonNull(csspServiceResponse.getData())) {
+        CsspServiceResponse csspServiceResponse = accountLanderService.getAccountList(userId, true);
+        if (Objects.nonNull(csspServiceResponse.getData())) {
             csspServiceResponse.setMessage(new Messages("SUCCESS"));
         }
         return new ResponseEntity<>(csspServiceResponse, HttpStatus.OK);
     }
 
-    @GetMapping(path = "/{accountNumber}/getUsers", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getAccountUserIds(@PathVariable String accountNumber) throws Exception {
+    @GetMapping(path = "/lookup", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getAccountUserIds(
+            @RequestParam(value = "accountNumber", required = false) String accountNumber,
+            @RequestParam(value = "email", required = false) String email) throws Exception {
 
-        CsspListServiceResponse<LanderListData> csspServiceResponse = accountLanderService.getAccountUser(accountNumber);
-        if(Objects.nonNull(csspServiceResponse.getData())) {
+        CsspListServiceResponse<LanderListData> csspServiceResponse = accountLanderService
+                .getAccountUser(accountNumber, email);
+        if (Objects.nonNull(csspServiceResponse.getData())) {
             csspServiceResponse.setMessage(new Messages("SUCCESS"));
         }
         return new ResponseEntity<>(csspServiceResponse, HttpStatus.OK);

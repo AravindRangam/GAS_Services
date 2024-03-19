@@ -128,10 +128,10 @@ public class AccountLanderServiceImpl implements AccountLanderService {
 
         }
 
-        public CsspListServiceResponse<LanderListData> getAccountUser(String accountNumber) throws CSSPServiceException {
+        public CsspListServiceResponse<LanderListData> getAccountUser(String accountNumber, String email) throws CSSPServiceException {
             CsspListServiceResponse<LanderListData> csspLanderListData = new CsspListServiceResponse<LanderListData>();
             try {
-                List<LanderListData> landerListData = accountLanderServiceDAO.getAccountUser(accountNumber);
+                List<LanderListData> landerListData = accountLanderServiceDAO.getAccountUser(accountNumber, email);
                 csspLanderListData.setData(landerListData);
 
             } catch (CSSPServiceException e) {

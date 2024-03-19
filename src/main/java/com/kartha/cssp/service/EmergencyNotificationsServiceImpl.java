@@ -55,10 +55,63 @@ public class EmergencyNotificationsServiceImpl implements EmergencyNotifications
         return csspServiceResponse;
     }
 
-    public CsspListServiceResponse<EmergencyNotificationsData> getNotifications() throws CSSPServiceException {
+    public CsspServiceResponse updateNotification(CreateEmergencyRequest createEmergencyRequest)
+            throws CSSPServiceException {
+        CsspServiceResponse<String> csspServiceResponse = new CsspServiceResponse<String>();
+        try {
+            if(emergencyNotificationsServiceDAO.updateNotification(createEmergencyRequest)) {
+                csspServiceResponse.setMessage(new Messages(CSSPConstants.SUCCESS));
+                csspServiceResponse.setData("SUCCESS");
+            } else {
+                csspServiceResponse.setMessage(new Messages(CSSPConstants.FAILED));
+            }
+            
+        } catch (CSSPServiceException e) {
+            if (Objects.nonNull(e.getErrorCode()) &&
+                    CSSPConstants.USER_ACCOUNT_REGISTRATION_EXISTS.equalsIgnoreCase(e.getErrorCode())) {
+                csspServiceResponse.setMessage(new Messages(CSSPConstants.USER_ACCOUNT_REGISTRATION_EXISTS,
+                        CSSPConstants.FAILED, e.getMessage()));
+            } else {
+                csspServiceResponse.setMessage(new Messages(CSSPConstants.ERROR_CODE,
+                        CSSPConstants.FAILED, e.getMessage()));
+            }
+        } catch (Exception e1) {
+            csspServiceResponse.setMessage(new Messages(CSSPConstants.ERROR_CODE,
+                    CSSPConstants.FAILED, e1.getMessage()));
+        }
+        return csspServiceResponse;
+    }
+
+    public CsspServiceResponse deleteNotification(String id) throws CSSPServiceException {
+        CsspServiceResponse<String> csspServiceResponse = new CsspServiceResponse<String>();
+        try {
+            if(emergencyNotificationsServiceDAO.deleteNotification(id)) {
+                csspServiceResponse.setMessage(new Messages(CSSPConstants.SUCCESS));
+                csspServiceResponse.setData("SUCCESS");
+            } else {
+                csspServiceResponse.setMessage(new Messages(CSSPConstants.FAILED));
+            }
+            
+        } catch (CSSPServiceException e) {
+            if (Objects.nonNull(e.getErrorCode()) &&
+                    CSSPConstants.USER_ACCOUNT_REGISTRATION_EXISTS.equalsIgnoreCase(e.getErrorCode())) {
+                csspServiceResponse.setMessage(new Messages(CSSPConstants.USER_ACCOUNT_REGISTRATION_EXISTS,
+                        CSSPConstants.FAILED, e.getMessage()));
+            } else {
+                csspServiceResponse.setMessage(new Messages(CSSPConstants.ERROR_CODE,
+                        CSSPConstants.FAILED, e.getMessage()));
+            }
+        } catch (Exception e1) {
+            csspServiceResponse.setMessage(new Messages(CSSPConstants.ERROR_CODE,
+                    CSSPConstants.FAILED, e1.getMessage()));
+        }
+        return csspServiceResponse;
+    }
+
+    public CsspListServiceResponse<EmergencyNotificationsData> getNotifications(String includeDeleted) throws CSSPServiceException {
         CsspListServiceResponse<EmergencyNotificationsData> csspListServiceResponse = new CsspListServiceResponse<EmergencyNotificationsData>();
         try {
-            csspListServiceResponse.setData(emergencyNotificationsServiceDAO.getNotifications());
+            csspListServiceResponse.setData(emergencyNotificationsServiceDAO.getNotifications(includeDeleted));
             csspListServiceResponse.setMessage(new Messages(CSSPConstants.SUCCESS));
         } catch (CSSPServiceException e) {
             if (Objects.nonNull(e.getErrorCode()) &&

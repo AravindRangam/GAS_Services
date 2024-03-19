@@ -8,5 +8,7 @@ import com.kartha.cssp.response.CsspServiceResponse;
 public interface EmergencyNotificationsService {
     
     CsspServiceResponse createNotification(CreateEmergencyRequest createEmergencyRequest) throws CSSPServiceException;
-    CsspListServiceResponse getNotifications() throws CSSPServiceException;
+    CsspServiceResponse updateNotification(CreateEmergencyRequest createEmergencyRequest) throws CSSPServiceException;
+    CsspServiceResponse deleteNotification(String id) throws CSSPServiceException;
+    CsspListServiceResponse getNotifications(String includeDeleted) throws CSSPServiceException;
 }

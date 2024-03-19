@@ -9,6 +9,6 @@ public interface AccountLanderService {
 
     CsspServiceResponse getAccountList(String userId, Boolean getOnlyDefaultFlag) throws CSSPServiceException;
 
-    CsspListServiceResponse<LanderListData> getAccountUser(String accountNumber) throws CSSPServiceException;
+    CsspListServiceResponse<LanderListData> getAccountUser(String accountNumber, String email) throws CSSPServiceException;
 
 }

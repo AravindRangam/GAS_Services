@@ -36,20 +36,43 @@ public class EmergencyNotificationServiceDAOImpl implements EmergencyNotificatio
         emerygencyNotifications.setCreatedTS(notificationsData.getCreatedTS());
         emerygencyNotifications.setLastUpdatedTS(notificationsData.getLastUpdatedTS());
         emerygencyNotifications.setExpiresOn(notificationsData.getExpiresOn());
+        emerygencyNotifications.setType(notificationsData.getType());
         mongodbTemplate.save(emerygencyNotifications);
         return true;
     }
 
-    public List<EmergencyNotificationsData> getNotifications() throws CSSPServiceException {
+    public boolean updateNotification(CreateEmergencyRequest notificationsData) throws CSSPServiceException {
+        EmerygencyNotifications emerygencyNotifications = new EmerygencyNotifications();
+        emerygencyNotifications.setId(notificationsData.getId());
+        emerygencyNotifications.setMessage(notificationsData.getMessage());
+        emerygencyNotifications.setIsDeleted(notificationsData.getIsDeleted());
+        emerygencyNotifications.setCreatedTS(notificationsData.getCreatedTS());
+        emerygencyNotifications.setLastUpdatedTS(notificationsData.getLastUpdatedTS());
+        emerygencyNotifications.setExpiresOn(notificationsData.getExpiresOn());
+        emerygencyNotifications.setType(notificationsData.getType());
+        mongodbTemplate.save(emerygencyNotifications);
+        return true;
+    }
+
+    public boolean deleteNotification(String id) throws CSSPServiceException {
+        mongodbTemplate.remove(new Query(Criteria.where("id").is(id)), EmerygencyNotifications.class);
+        return true;
+    }
+
+    public List<EmergencyNotificationsData> getNotifications(String includeDeleted) throws CSSPServiceException {
         List<EmergencyNotificationsData> emergencyNotificationsDataList = new ArrayList<EmergencyNotificationsData>();
         Query query = new Query();
 
-        query.addCriteria(Criteria.where("isDeleted").is("N"));
+        if(includeDeleted == null || includeDeleted.isEmpty()){
+            query.addCriteria(Criteria.where("isDeleted").is("N"));
+        } 
 
         List<EmerygencyNotifications> emerygencyNotifications = mongodbTemplate.find(query, EmerygencyNotifications.class);
 
         // iterate through the list and convert to data object
         if(emerygencyNotifications != null && !emerygencyNotifications.isEmpty()) {
+            // sort the list by created date
+
             for(EmerygencyNotifications emerygencyNotification : emerygencyNotifications) {
                 Boolean isExpired = false;
                 // check if the current notification expired
@@ -68,14 +91,24 @@ public class EmergencyNotificationServiceDAOImpl implements EmergencyNotificatio
                 if(isExpired == false) {
                     // convert to data object and add to the list
                     EmergencyNotificationsData emergencyNotificationsData = new EmergencyNotificationsData();
+                    emergencyNotificationsData.setId(emerygencyNotification.getId());
                     emergencyNotificationsData.setMessage(emerygencyNotification.getMessage());
                     emergencyNotificationsData.setIsDeleted(emerygencyNotification.getIsDeleted());
                     emergencyNotificationsData.setCreatedTS(emerygencyNotification.getCreatedTS());
                     emergencyNotificationsData.setLastUpdatedTS(emerygencyNotification.getLastUpdatedTS());
                     emergencyNotificationsData.setExpiresOn(emerygencyNotification.getExpiresOn());
+                    emergencyNotificationsData.setType(emerygencyNotification.getType());
+                    try {
+                        emergencyNotificationsData.setLastUpdatedTSConverted(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(emerygencyNotification.getLastUpdatedTS()));
+                    } catch (ParseException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
                     emergencyNotificationsDataList.add(emergencyNotificationsData);
+                    
                 }
             }
+            emergencyNotificationsDataList.sort((EmergencyNotificationsData e1, EmergencyNotificationsData e2) -> e2.getLastUpdatedTSConverted().compareTo(e1.getLastUpdatedTSConverted()));
         }
         return emergencyNotificationsDataList;
     }

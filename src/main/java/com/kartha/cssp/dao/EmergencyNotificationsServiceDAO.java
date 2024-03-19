@@ -9,6 +9,8 @@ import com.kartha.cssp.request.CreateEmergencyRequest;
 public interface EmergencyNotificationsServiceDAO {
     
     boolean createNotification(CreateEmergencyRequest notificationsData) throws CSSPServiceException;
-    List<EmergencyNotificationsData> getNotifications() throws CSSPServiceException;
+    boolean updateNotification(CreateEmergencyRequest notificationsData) throws CSSPServiceException;
+    boolean deleteNotification(String id) throws CSSPServiceException;
+    List<EmergencyNotificationsData> getNotifications(String includeDeleted) throws CSSPServiceException;
     
 }

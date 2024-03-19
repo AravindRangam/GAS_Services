@@ -102,12 +102,27 @@ public class AccountLanderServiceDAOImpl implements AccountLanderServiceDAO {
         }
     }
 
-    public List<LanderListData> getAccountUser(String accountNumber) throws CSSPServiceException {
+    public List<LanderListData> getAccountUser(String accountNumber, String email) throws CSSPServiceException {
         List<LanderListData> landerListData = new ArrayList<LanderListData>();
         Query userQuery = new Query();
-        List<AccountData> accountDataList = new ArrayList<AccountData>();
 
-        userQuery.addCriteria(new Criteria().andOperator(Criteria.where("userAccountInfo.accountNumber").is(accountNumber)));
+        if(accountNumber.isEmpty() && email.isEmpty()) {
+            throw new CSSPServiceException(CSSPConstants.ACCOUNT_NOT_FOUND_ERROR,
+                    CSSPConstants.ACCOUNT_NOT_FOUND_MSG);
+        }
+
+        if(!checkEmpty(accountNumber) && !checkEmpty(email)) {
+            userQuery.addCriteria(new Criteria().orOperator(Criteria.where("userId").is(email.toUpperCase()),
+                    Criteria.where("userAccountInfo.accountNumber").is(accountNumber)));
+        }
+
+        if(!checkEmpty(email)) {
+            userQuery.addCriteria(Criteria.where("userId").is(email.toUpperCase()));
+        }
+
+        if(!checkEmpty(accountNumber)) {
+            userQuery.addCriteria(Criteria.where("userAccountInfo.accountNumber").is(accountNumber));
+        }
 
         List<UserManagement> userManagementRow = mongodbTemplate.find(userQuery, UserManagement.class);
 
@@ -115,6 +130,7 @@ public class AccountLanderServiceDAOImpl implements AccountLanderServiceDAO {
         userManagementRow.stream().filter(Objects::nonNull)
                 .forEach(userManagementRowEachRow -> {
                     LanderListData landerListDataEachRow = new LanderListData();
+                    List<AccountData> accountDataList = new ArrayList<AccountData>();
                     landerListDataEachRow.setUserId(userManagementRowEachRow.getUserId());
                     landerListDataEachRow.setDefaultAccountNumber(userManagementRowEachRow.getDefaultAccountNumber());
                     List<UserAccountInfoData> userAccountInfoDataRows = userManagementRowEachRow.getUserAccountInfo();
@@ -123,7 +139,7 @@ public class AccountLanderServiceDAOImpl implements AccountLanderServiceDAO {
                             .forEach(userAccountInfoDataEachRow -> {
                                 AccountData accountData = new AccountData();
                                 if (userAccountInfoDataEachRow.getRowDeletedInd().equalsIgnoreCase(notDeleteFlag)) {
-                                    populateAccountData(accountData, accountNumber);
+                                    populateAccountData(accountData, userAccountInfoDataEachRow.getAccountNumber());
                                     if (Objects.nonNull(accountData.getAccountNumber())) {
                                         accountDataList.add(accountData);
                                     } else {
@@ -138,5 +154,9 @@ public class AccountLanderServiceDAOImpl implements AccountLanderServiceDAO {
 
 
         return landerListData;
+    }
+
+    private boolean checkEmpty(String input) {
+        return input == null || input.isEmpty();
     }
 }

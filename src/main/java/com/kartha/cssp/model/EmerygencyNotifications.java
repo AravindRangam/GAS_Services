@@ -7,11 +7,21 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Document(collection = "emergency_notifications")
 public class EmerygencyNotifications {
+    private String id;
     private String message;
     private String isDeleted;
     private String createdTS;
     private String lastUpdatedTS;
     private String expiresOn;
+    private String type;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getMessage() {
         return message;
@@ -51,6 +61,14 @@ public class EmerygencyNotifications {
 
     public void setExpiresOn(String expiresOn) {
         this.expiresOn = expiresOn;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
     
 }

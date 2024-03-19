@@ -2,11 +2,21 @@ package com.kartha.cssp.request;
 
 public class CreateEmergencyRequest extends CSSPServiceRequests {
     
+    private String id;
     private String message;
     private String isDeleted;
     private String createdTS;
     private String lastUpdatedTS;
     private String expiresOn;
+    private String type;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getMessage() {
         return message;
@@ -46,5 +56,13 @@ public class CreateEmergencyRequest extends CSSPServiceRequests {
 
     public void setExpiresOn(String expiresOn) {
         this.expiresOn = expiresOn;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
