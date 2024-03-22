@@ -118,8 +118,8 @@ public class RegistrationDAOImpl implements RegistrationDAO {
 
         this.mongodbTemplate.save(userManagement);
 
-        emailServiceUtil.sendEmailRequest(accountSummaryServiceDAO.
-                getAccountSummaryLite(createUserRequest.getAccountNumber()), CSSPConstants.EMAIL_REGISTRATION);
+        // emailServiceUtil.sendEmailRequest(accountSummaryServiceDAO.
+        //         getAccountSummaryLite(createUserRequest.getAccountNumber()), CSSPConstants.EMAIL_REGISTRATION);
 
         return true;
     }
@@ -275,5 +275,20 @@ public class RegistrationDAOImpl implements RegistrationDAO {
             throw new CSSPServiceException(CSSPConstants.ACCOUNT_NOT_FOUND_ERROR, CSSPConstants.ACCOUNT_NOT_FOUND_MSG);
         }
         return accountEmailUIDData;
+    }
+
+    public List<UserManagement> allAdminUsers() throws CSSPServiceException {
+        Query query = new Query();
+        // add criteria where userRole exists, is not null, not empty and not "null"
+        query.addCriteria(Criteria.where("userRole").exists(true).ne("").ne("null"));
+        List<UserManagement> userManagementList = this.mongodbTemplate.find(query, UserManagement.class);
+        return userManagementList;
+    }
+
+    public UserManagement getAdminUser(String userId) throws CSSPServiceException {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("userId").is(userId.toUpperCase()));
+        UserManagement userManagement = this.mongodbTemplate.findOne(query, UserManagement.class);
+        return userManagement;
     }
 }

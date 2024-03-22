@@ -44,7 +44,8 @@ public class EmailServiceUtil {
 
     private void sendEmail(AccountData accountData, String emailTemplate, String email) {
         SimpleMailMessage msg = new SimpleMailMessage();
-        msg.setTo("vizaykris@gmail.com");
+        // msg.setTo("vizaykris@gmail.com");
+        msg.setTo(email);
         msg.setFrom("info@iwebtechservices.com");
         if (emailTemplate.equalsIgnoreCase(CSSPConstants.EMAIL_REGISTRATION)) {
             msg.setSubject("Welcome User");
@@ -84,7 +85,7 @@ public class EmailServiceUtil {
             msg.setText("Online Payment enrollment completed !!! ");
         }
 
-        javaMailSender.send(msg);
+        // javaMailSender.send(msg);
     }
 
 }

@@ -17,4 +17,10 @@ public interface RegistrationService {
 
     CsspListServiceResponse forgotPass(ForgotPassRequest forgotPassRequest) throws CSSPServiceException;
 
+    CsspServiceResponse resetPassword(UpdatePasswordRequest updatePasswordRequest) throws CSSPServiceException;
+
+    CsspListServiceResponse allAdminUsers() throws CSSPServiceException;
+
+    CsspServiceResponse getAdminUser(String userId) throws CSSPServiceException;
+
 }

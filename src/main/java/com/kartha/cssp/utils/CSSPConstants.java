@@ -42,6 +42,9 @@ public class CSSPConstants {
     public static final String USER_ACCOUNT_REGISTRATION = "user.create.successful";
     public static final String USER_ACCOUNT_REGISTRATION_EXISTS = "user.account.registered.error";
 
+    // Admin users
+    public static final String ALL_ADMIN_USERS = "all.admin.users";
+
     //update password
     public static final String UPDATE_PASSWORD_SUCCESS = "update.pwd.success";
 

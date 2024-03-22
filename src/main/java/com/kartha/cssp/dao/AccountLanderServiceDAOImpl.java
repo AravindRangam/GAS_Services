@@ -7,6 +7,8 @@ import com.kartha.cssp.exception.CSSPServiceException;
 import com.kartha.cssp.model.Account;
 import com.kartha.cssp.model.UserManagement;
 import com.kartha.cssp.utils.CSSPConstants;
+import com.mongodb.lang.NonNull;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
@@ -102,58 +105,62 @@ public class AccountLanderServiceDAOImpl implements AccountLanderServiceDAO {
         }
     }
 
+    @SuppressWarnings("null")
     public List<LanderListData> getAccountUser(String accountNumber, String email) throws CSSPServiceException {
-        List<LanderListData> landerListData = new ArrayList<LanderListData>();
-        Query userQuery = new Query();
-
-        if(accountNumber.isEmpty() && email.isEmpty()) {
+        if (checkEmpty(accountNumber) && checkEmpty(email)) {
             throw new CSSPServiceException(CSSPConstants.ACCOUNT_NOT_FOUND_ERROR,
                     CSSPConstants.ACCOUNT_NOT_FOUND_MSG);
         }
 
-        if(!checkEmpty(accountNumber) && !checkEmpty(email)) {
-            userQuery.addCriteria(new Criteria().orOperator(Criteria.where("userId").is(email.toUpperCase()),
-                    Criteria.where("userAccountInfo.accountNumber").is(accountNumber)));
+        Query userQuery = new Query();
+        List<Criteria> criteriaList = new ArrayList<>();
+
+        if (!checkEmpty(email)) {
+            criteriaList.add(Criteria.where("userId").is(email.toUpperCase()));
         }
 
-        if(!checkEmpty(email)) {
-            userQuery.addCriteria(Criteria.where("userId").is(email.toUpperCase()));
+        if (!checkEmpty(accountNumber)) {
+            criteriaList.add(Criteria.where("userAccountInfo.accountNumber").is(accountNumber));
+            criteriaList.add(Criteria.where("userAccountInfo.rowDeletedInd").is(notDeleteFlag));
         }
 
-        if(!checkEmpty(accountNumber)) {
-            userQuery.addCriteria(Criteria.where("userAccountInfo.accountNumber").is(accountNumber));
+        if (!criteriaList.isEmpty()) {
+            userQuery.addCriteria(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
         }
 
         List<UserManagement> userManagementRow = mongodbTemplate.find(userQuery, UserManagement.class);
 
-        // loop throw the userManagementRow and get the userAccountInfoData and populate the landerListData
-        userManagementRow.stream().filter(Objects::nonNull)
-                .forEach(userManagementRowEachRow -> {
-                    LanderListData landerListDataEachRow = new LanderListData();
-                    List<AccountData> accountDataList = new ArrayList<AccountData>();
-                    landerListDataEachRow.setUserId(userManagementRowEachRow.getUserId());
-                    landerListDataEachRow.setDefaultAccountNumber(userManagementRowEachRow.getDefaultAccountNumber());
-                    List<UserAccountInfoData> userAccountInfoDataRows = userManagementRowEachRow.getUserAccountInfo();
+        return userManagementRow.stream()
+                .filter(Objects::nonNull)
+                .map(this::mapToLanderListData)
+                .filter(Objects::nonNull) // Filter out null LanderListData objects
+                .collect(Collectors.toList());
+    }
 
-                    userAccountInfoDataRows.stream().filter(Objects::nonNull)
-                            .forEach(userAccountInfoDataEachRow -> {
-                                AccountData accountData = new AccountData();
-                                if (userAccountInfoDataEachRow.getRowDeletedInd().equalsIgnoreCase(notDeleteFlag)) {
-                                    populateAccountData(accountData, userAccountInfoDataEachRow.getAccountNumber());
-                                    if (Objects.nonNull(accountData.getAccountNumber())) {
-                                        accountDataList.add(accountData);
-                                    } else {
-                                        throw new CSSPServiceException(CSSPConstants.ACCOUNT_NOT_FOUND_ERROR,
-                                                CSSPConstants.ACCOUNT_NOT_FOUND_MSG);
-                                    }
-                                }
-                            });
-                    landerListDataEachRow.setAccountData(accountDataList);
-                    landerListData.add(landerListDataEachRow);
-                });
+    private LanderListData mapToLanderListData(UserManagement userManagementRowEachRow) {
+        LanderListData landerListDataEachRow = new LanderListData();
+        List<AccountData> accountDataList = userManagementRowEachRow.getUserAccountInfo().stream()
+                .filter(Objects::nonNull)
+                .filter(userAccountInfoDataEachRow -> userAccountInfoDataEachRow.getRowDeletedInd()
+                        .equalsIgnoreCase(notDeleteFlag))
+                .map(userAccountInfoDataEachRow -> {
+                    AccountData accountData = new AccountData();
+                    populateAccountData(accountData, userAccountInfoDataEachRow.getAccountNumber());
+                    return accountData;
+                })
+                .filter(accountData -> Objects.nonNull(accountData.getAccountNumber())) // Ensure accountData has a
+                                                                                        // non-null accountNumber
+                .collect(Collectors.toList());
 
+        if (accountDataList.isEmpty()) {
+            return null; // If accountDataList is empty, return null
+        }
 
-        return landerListData;
+        landerListDataEachRow.setUserId(userManagementRowEachRow.getUserId());
+        landerListDataEachRow.setDefaultAccountNumber(userManagementRowEachRow.getDefaultAccountNumber());
+        landerListDataEachRow.setAccountData(accountDataList);
+
+        return landerListDataEachRow;
     }
 
     private boolean checkEmpty(String input) {

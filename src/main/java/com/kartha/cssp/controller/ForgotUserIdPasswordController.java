@@ -71,5 +71,17 @@ public class ForgotUserIdPasswordController {
         return new ResponseEntity<>(csspListServiceResponse, HttpStatus.OK);
     }
 
+    @PostMapping(path = "/{userId}/resetPassword", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity resetPassword(@RequestBody UpdatePasswordRequest updatePasswordRequest,
+                                     @PathVariable String userId) throws Exception {
+
+        CsspServiceResponse csspServiceResponse = registrationService.resetPassword(updatePasswordRequest);
+        if (Objects.nonNull(csspServiceResponse.getData())) {
+            csspServiceResponse.setMessage(new Messages(CSSPConstants.UPDATE_PASSWORD_SUCCESS,
+                    CSSPConstants.SUCCESS,"update password is successful."));
+        }
+        return new ResponseEntity<>(csspServiceResponse, HttpStatus.OK);
+    } 
+
 
 }

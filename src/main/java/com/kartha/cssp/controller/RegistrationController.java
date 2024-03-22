@@ -1,6 +1,7 @@
 package com.kartha.cssp.controller;
 
 import com.kartha.cssp.request.CreateUserRequest;
+import com.kartha.cssp.response.CsspListServiceResponse;
 import com.kartha.cssp.response.CsspServiceResponse;
 import com.kartha.cssp.response.Messages;
 import com.kartha.cssp.service.RegistrationService;
@@ -46,6 +47,27 @@ public class RegistrationController {
         if (Objects.nonNull(csspServiceResponse.getData())) {
             csspServiceResponse.setMessage(new Messages(CSSPConstants.USER_ACCOUNT_REGISTRATION,
                     CSSPConstants.SUCCESS,"user id creation is successful."));
+        }
+        return new ResponseEntity<>(csspServiceResponse, HttpStatus.OK);
+    }
+
+    @GetMapping(path = "/adminUsers", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity allAdminUsers() throws Exception {
+        CsspListServiceResponse csspListServiceResponse = registrationService.allAdminUsers();
+        if (Objects.nonNull(csspListServiceResponse.getData())) {
+            csspListServiceResponse.setMessage(new Messages(CSSPConstants.ALL_ADMIN_USERS,
+                    CSSPConstants.SUCCESS,"all admin users retrieved successfully."));
+        }
+        return new ResponseEntity<>(csspListServiceResponse, HttpStatus.OK);
+
+    }
+
+    @GetMapping(path = "/{userId}/adminUser", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getAdminUser(@PathVariable String userId) {
+        CsspServiceResponse csspServiceResponse = registrationService.getAdminUser(userId);
+        if (Objects.nonNull(csspServiceResponse.getData())) {
+            csspServiceResponse.setMessage(new Messages(CSSPConstants.ALL_ADMIN_USERS,
+                    CSSPConstants.SUCCESS,"admin user retrieved successfully."));
         }
         return new ResponseEntity<>(csspServiceResponse, HttpStatus.OK);
     }
