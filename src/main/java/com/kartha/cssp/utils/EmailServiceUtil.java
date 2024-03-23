@@ -42,11 +42,15 @@ public class EmailServiceUtil {
         }
     }
 
+    public void sendEmailRequest(String email, String emailTemplate) {
+        sendEmail(null, emailTemplate, email);
+    }
+
     private void sendEmail(AccountData accountData, String emailTemplate, String email) {
         SimpleMailMessage msg = new SimpleMailMessage();
         // msg.setTo("vizaykris@gmail.com");
         msg.setTo(email);
-        msg.setFrom("info@iwebtechservices.com");
+        // msg.setFrom("info@iwebtechservices.com");
         if (emailTemplate.equalsIgnoreCase(CSSPConstants.EMAIL_REGISTRATION)) {
             msg.setSubject("Welcome User");
             msg.setText("Welcome to SSP Portal !!! ");
@@ -85,7 +89,7 @@ public class EmailServiceUtil {
             msg.setText("Online Payment enrollment completed !!! ");
         }
 
-        // javaMailSender.send(msg);
+        javaMailSender.send(msg);
     }
 
 }
