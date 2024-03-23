@@ -50,7 +50,7 @@ public class EmailServiceUtil {
         SimpleMailMessage msg = new SimpleMailMessage();
         // msg.setTo("vizaykris@gmail.com");
         msg.setTo(email);
-        // msg.setFrom("info@iwebtechservices.com");
+        msg.setFrom("info@iwebtechservices.com");
         if (emailTemplate.equalsIgnoreCase(CSSPConstants.EMAIL_REGISTRATION)) {
             msg.setSubject("Welcome User");
             msg.setText("Welcome to SSP Portal !!! ");
