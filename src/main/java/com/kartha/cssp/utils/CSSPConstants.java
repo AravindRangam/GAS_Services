@@ -47,6 +47,7 @@ public class CSSPConstants {
 
     //update password
     public static final String UPDATE_PASSWORD_SUCCESS = "update.pwd.success";
+    public static final String RESET_PASSWORD_SUCCESS = "reset.pwd.success";
 
     //forgot uid
     public static final String FORGOT_UID_SUCCESS = "retriee.uid.success";

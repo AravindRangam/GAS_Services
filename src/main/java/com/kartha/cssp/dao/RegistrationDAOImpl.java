@@ -169,7 +169,7 @@ public class RegistrationDAOImpl implements RegistrationDAO {
     public void updatePassword(UpdatePasswordRequest updatePasswordRequest) throws CSSPServiceException {
 
         this.cognitoDAOImpl.updateUserPasswordInCognito(updatePasswordRequest);
-         emailServiceUtil.sendEmailRequest(updatePasswordRequest.getUserId(), CSSPConstants.UPDATE_PASSWORD_SUCCESS);
+         emailServiceUtil.sendEmailRequest(updatePasswordRequest.getUserId(), CSSPConstants.RESET_PASSWORD_SUCCESS);
     }
 
 

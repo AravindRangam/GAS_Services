@@ -12,6 +12,8 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import javax.swing.text.html.CSS;
+
 @Component
 public class EmailServiceUtil {
 
@@ -87,6 +89,9 @@ public class EmailServiceUtil {
         } else if (emailTemplate.equalsIgnoreCase(CSSPConstants.EMAIL_ENROLL_ONLINE_PAYMENT)) {
             msg.setSubject("Hello User");
             msg.setText("Online Payment enrollment completed !!! ");
+        } else if(emailTemplate.equalsIgnoreCase(CSSPConstants.RESET_PASSWORD_SUCCESS)) {
+            msg.setSubject("Hello User");
+            msg.setText("Password reset successfully !!! ");
         }
 
         javaMailSender.send(msg);
