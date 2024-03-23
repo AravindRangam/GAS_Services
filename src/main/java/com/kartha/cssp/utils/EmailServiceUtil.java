@@ -91,7 +91,9 @@ public class EmailServiceUtil {
             msg.setText("Online Payment enrollment completed !!! ");
         } else if(emailTemplate.equalsIgnoreCase(CSSPConstants.RESET_PASSWORD_SUCCESS)) {
             msg.setSubject("Hello User");
-            msg.setText("Password reset successfully !!! ");
+            // can you add a proper message here? with footer and header
+            msg.setText("Password reset successful! \\r\\n - The ProKartha Team");
+
         }
 
         javaMailSender.send(msg);
