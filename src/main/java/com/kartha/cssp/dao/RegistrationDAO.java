@@ -16,6 +16,8 @@ public interface RegistrationDAO {
 
     void updatePassword(UpdatePasswordRequest updatePasswordRequest) throws Exception;
 
+    void resetPassword(UpdatePasswordRequest resetPasswordRequest) throws Exception;
+
     AccountEmailUIDData forgotUID(ForgotUIDRequest forgotUIDRequest) throws Exception;
 
     List<AccountEmailData> forgotPass(ForgotPassRequest forgotPassRequest) throws Exception;
@@ -25,4 +27,8 @@ public interface RegistrationDAO {
     List<UserManagement> allAdminUsers() throws Exception;
 
     UserManagement getAdminUser(String userId) throws Exception;
+
+    boolean disableUser(String userId) throws Exception;
+
+    boolean enableUser(String userId) throws Exception;
 }

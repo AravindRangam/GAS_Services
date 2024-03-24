@@ -9,6 +9,7 @@ public class LanderListData {
 
     private String userId;
     private String defaultAccountNumber;
+    private String userDisabledInd;
     private List<AccountData> accountData;
 
     public String getUserId() {
@@ -33,6 +34,14 @@ public class LanderListData {
 
     public void setAccountData(List<AccountData> accountData) {
         this.accountData = accountData;
+    }
+
+    public String getUserDisabledInd() {
+        return userDisabledInd;
+    }
+
+    public void setUserDisabledInd(String userDisabledInd) {
+        this.userDisabledInd = userDisabledInd;
     }
 
 }

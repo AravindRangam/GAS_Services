@@ -7,6 +7,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -48,6 +49,16 @@ public class EmailServiceUtil {
         sendEmail(null, emailTemplate, email);
     }
 
+    public void sendPasswordResetEmail(String email, String resetPassword) {
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setTo(email);
+        msg.setFrom("info@iwebtechservices.com");
+        msg.setSubject("Your password to ProKartha has been reset!!!");
+        String messageBody = "Hi User, \n\nYour password has been reset to: " + resetPassword + "\n\nPlease login to the ProKartha and change your password.\n\nThanks,\nProKartha Team";
+        msg.setText(messageBody);
+        sendEmail(email, msg);
+    }
+
     private void sendEmail(AccountData accountData, String emailTemplate, String email) {
         SimpleMailMessage msg = new SimpleMailMessage();
         // msg.setTo("vizaykris@gmail.com");
@@ -55,7 +66,7 @@ public class EmailServiceUtil {
         msg.setFrom("info@iwebtechservices.com");
         if (emailTemplate.equalsIgnoreCase(CSSPConstants.EMAIL_REGISTRATION)) {
             msg.setSubject("Welcome User");
-            msg.setText("Welcome to SSP Portal !!! ");
+            msg.setText("Welcome to ProKartha !!! ");
         } else if (emailTemplate.equalsIgnoreCase(CSSPConstants.EMAIL_UPDATE_PHONE_NUMBER)) {
             msg.setSubject("Hello User");
             msg.setText("Phone Number Updated !!! ");
@@ -92,11 +103,29 @@ public class EmailServiceUtil {
         } else if(emailTemplate.equalsIgnoreCase(CSSPConstants.RESET_PASSWORD_SUCCESS)) {
             msg.setSubject("Hello User");
             // can you add a proper message here? with footer and header
-            msg.setText("Password reset successful! \\r\\n - The ProKartha Team");
+            msg.setText("Password reset successful! \n - The ProKartha Team");
 
         }
 
-        javaMailSender.send(msg);
+        sendEmail(email, msg);
+    }
+
+    @SuppressWarnings("null")
+    public void sendEmail(String emailAddress, SimpleMailMessage msg) {
+        // List of specific email addresses to check
+        emailAddress = emailAddress.toLowerCase();
+        List<String> specificEmails = Arrays.asList("suman.chimata@gmail.com", "sunil.s@iwebte.com", "vizaykris@gmail.com");
+
+        // List of domains to check
+        List<String> domains = Arrays.asList("iwebtechservices.com", "iwebte.com");
+
+        // Extract the domain from the email address
+        String domain = emailAddress.substring(emailAddress.indexOf("@") + 1);
+
+        // Check if the email address is in the specific list or the domain is in the domain list
+        if (specificEmails.contains(emailAddress) || domains.contains(domain)) {
+            javaMailSender.send(msg);
+        }
     }
 
 }

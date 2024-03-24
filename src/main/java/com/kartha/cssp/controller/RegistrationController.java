@@ -62,12 +62,35 @@ public class RegistrationController {
 
     }
 
-    @GetMapping(path = "/{userId}/adminUser", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/{userId}/getUser", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getAdminUser(@PathVariable String userId) {
         CsspServiceResponse csspServiceResponse = registrationService.getAdminUser(userId);
         if (Objects.nonNull(csspServiceResponse.getData())) {
             csspServiceResponse.setMessage(new Messages(CSSPConstants.ALL_ADMIN_USERS,
                     CSSPConstants.SUCCESS,"admin user retrieved successfully."));
+        }
+        return new ResponseEntity<>(csspServiceResponse, HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/{userId}/disableUser", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity disableUser(@PathVariable String userId) throws Exception {
+        if(userId != null && !userId.isEmpty()) {
+            userId = userId.toLowerCase();
+        }
+        CsspServiceResponse csspServiceResponse = registrationService.disableUser(userId);
+        if (Objects.nonNull(csspServiceResponse.getData())) {
+            csspServiceResponse.setMessage(new Messages(CSSPConstants.DISABLE_USER_ERROR,
+                    CSSPConstants.SUCCESS,"user disabled successfully."));
+        }
+        return new ResponseEntity<>(csspServiceResponse, HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/{userId}/enableUser", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity enableUser(@PathVariable String userId) throws Exception {
+        CsspServiceResponse csspServiceResponse = registrationService.enableUser(userId);
+        if (Objects.nonNull(csspServiceResponse.getData())) {
+            csspServiceResponse.setMessage(new Messages(CSSPConstants.ENABLE_USER_ERROR,
+                    CSSPConstants.SUCCESS,"user enabled successfully."));
         }
         return new ResponseEntity<>(csspServiceResponse, HttpStatus.OK);
     }

@@ -26,7 +26,6 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 
-
 @Slf4j
 @Repository
 public class RegistrationDAOImpl implements RegistrationDAO {
@@ -41,9 +40,9 @@ public class RegistrationDAOImpl implements RegistrationDAO {
 
     @Autowired
     public RegistrationDAOImpl(MongoTemplate mongodbTemplate,
-                               CognitoDAOImpl cognitoDAOImpl,
-                               AccountSummaryServiceDAO accountSummaryServiceDAO,
-                               EmailServiceUtil emailServiceUtil) {
+            CognitoDAOImpl cognitoDAOImpl,
+            AccountSummaryServiceDAO accountSummaryServiceDAO,
+            EmailServiceUtil emailServiceUtil) {
         this.mongodbTemplate = mongodbTemplate;
         this.cognitoDAOImpl = cognitoDAOImpl;
         this.accountSummaryServiceDAO = accountSummaryServiceDAO;
@@ -69,31 +68,33 @@ public class RegistrationDAOImpl implements RegistrationDAO {
             validateUserData.setAvailable(true);
         }
 
+        /*
+         * This is retrieve all the values without filter
+         * 
+         * List<UserRegistrationInfo> userRegistrationInfoList =
+         * mongodbTemplate.findAll(UserRegistrationInfo.class);
+         */
 
         /*
-        This is retrieve all the values without filter
-
-        List<UserRegistrationInfo> userRegistrationInfoList = mongodbTemplate.findAll(UserRegistrationInfo.class);
-        */
-
-        /*
-        Another approach without class ... in this we need to go with key value pairs..
-
-        MongoCollection<Document> collection = mongodbTemplate.getCollection("user_registration");
-
-        FindIterable<Document> documents = collection.find();
-
-        log.info(" User_Registration getDb 2::..."+documents);
-
-        MongoCursor<Document> mongoCursor = documents.iterator();
-
-        log.info(" User_Registration getDb 3::..."+mongoCursor.hasNext());
-
-        while(mongoCursor.hasNext()) {
-            Document document = mongoCursor.next();
-            log.info(".........."+document.getString("userId"));
-        }
-        */
+         * Another approach without class ... in this we need to go with key value
+         * pairs..
+         * 
+         * MongoCollection<Document> collection =
+         * mongodbTemplate.getCollection("user_registration");
+         * 
+         * FindIterable<Document> documents = collection.find();
+         * 
+         * log.info(" User_Registration getDb 2::..."+documents);
+         * 
+         * MongoCursor<Document> mongoCursor = documents.iterator();
+         * 
+         * log.info(" User_Registration getDb 3::..."+mongoCursor.hasNext());
+         * 
+         * while(mongoCursor.hasNext()) {
+         * Document document = mongoCursor.next();
+         * log.info(".........."+document.getString("userId"));
+         * }
+         */
 
         return validateUserData;
     }
@@ -103,15 +104,15 @@ public class RegistrationDAOImpl implements RegistrationDAO {
 
         query.addCriteria(new Criteria().andOperator(
                 Criteria.where("userId").is(createUserRequest.getUserId().toUpperCase()),
-                Criteria.where("userAccountInfo.accountNumber").is(createUserRequest.getAccountNumber())
-        ));
+                Criteria.where("userAccountInfo.accountNumber").is(createUserRequest.getAccountNumber())));
 
         UserManagement userManagement = mongodbTemplate.findOne(query, UserManagement.class);
 
         if (Objects.nonNull(userManagement)) {
-            throw new CSSPServiceException(CSSPConstants.USER_ACCOUNT_REGISTRATION_EXISTS, "This user id is alread exists.");
+            throw new CSSPServiceException(CSSPConstants.USER_ACCOUNT_REGISTRATION_EXISTS,
+                    "This user id is alread exists.");
         } else {
-            //Registration FLOW
+            // Registration FLOW
             userManagement = new UserManagement();
             addAccountToUserManagement(userManagement, createUserRequest);
         }
@@ -119,13 +120,14 @@ public class RegistrationDAOImpl implements RegistrationDAO {
         this.mongodbTemplate.save(userManagement);
 
         // emailServiceUtil.sendEmailRequest(accountSummaryServiceDAO.
-        //         getAccountSummaryLite(createUserRequest.getAccountNumber()), CSSPConstants.EMAIL_REGISTRATION);
+        // getAccountSummaryLite(createUserRequest.getAccountNumber()),
+        // CSSPConstants.EMAIL_REGISTRATION);
 
         return true;
     }
 
     public UserManagement addAccountToUserManagement(UserManagement userManagement,
-                                                     CreateUserRequest createUserRequest) throws CSSPServiceException {
+            CreateUserRequest createUserRequest) throws CSSPServiceException {
         Query accountQuery = new Query();
 
         accountQuery.addCriteria(Criteria.where("accountNumber").is(createUserRequest.getAccountNumber()));
@@ -167,17 +169,30 @@ public class RegistrationDAOImpl implements RegistrationDAO {
     }
 
     public void updatePassword(UpdatePasswordRequest updatePasswordRequest) throws CSSPServiceException {
-
         this.cognitoDAOImpl.updateUserPasswordInCognito(updatePasswordRequest);
-         emailServiceUtil.sendEmailRequest(updatePasswordRequest.getUserId(), CSSPConstants.RESET_PASSWORD_SUCCESS);
     }
 
+    public void resetPassword(UpdatePasswordRequest resetPasswordRequest) throws CSSPServiceException {
+        this.cognitoDAOImpl.updateUserPasswordInCognito(resetPasswordRequest);
+        emailServiceUtil.sendPasswordResetEmail(resetPasswordRequest.getUserId(), resetPasswordRequest.getConfirmPassword());
+
+        Query query = new Query();
+        query.addCriteria(Criteria.where("userId").is(resetPasswordRequest.getUserId().toUpperCase()));
+        UserManagement userManagement = this.mongodbTemplate.findOne(query, UserManagement.class);
+        if (Objects.isNull(userManagement)) {
+            throw new CSSPServiceException(CSSPConstants.USER_NOT_FOUND_ERROR, CSSPConstants.USER_NOT_FOUND_ERROR_MSG);
+        } else {
+            userManagement.setPasswordResetInd("Y");
+            this.mongodbTemplate.save(userManagement);
+        }
+    }
 
     public List<AccountEmailData> forgotPass(ForgotPassRequest forgotPassRequest) throws CSSPServiceException {
         AccountEmailData accountEmailData = new AccountEmailData();
         List<AccountEmailData> accountEmailDataList = new ArrayList<AccountEmailData>();
         Query userQuery = new Query();
-        userQuery.addCriteria(new Criteria().andOperator(Criteria.where("userId").is(forgotPassRequest.getUserId().toUpperCase())));
+        userQuery.addCriteria(
+                new Criteria().andOperator(Criteria.where("userId").is(forgotPassRequest.getUserId().toUpperCase())));
         UserManagement userManagementRow = this.mongodbTemplate.findOne(userQuery, UserManagement.class);
 
         if (!Objects.nonNull(userManagementRow)) {
@@ -186,20 +201,21 @@ public class RegistrationDAOImpl implements RegistrationDAO {
         List<UserAccountInfoData> userAccountInfoDataRows = userManagementRow.getUserAccountInfo();
         userAccountInfoDataRows.stream().filter(Objects::nonNull)
                 .forEach(userAccountInfoDataEachRow -> {
-                            if (userAccountInfoDataEachRow.getRowDeletedInd().equalsIgnoreCase("N")) {
-                                Query query = new Query();
-                                query.addCriteria(Criteria.where("accountNumber").is(userAccountInfoDataEachRow.getAccountNumber()));
-                                Account accountList = mongodbTemplate.findOne(query, Account.class);
-                                if (Objects.nonNull(accountList)) {
-                                    if (CommonUtils.validateLast4Digits(accountList.getSsnTaxid(), forgotPassRequest.getLast4SSN())) {
-                                        accountEmailData.setAccountNumber(accountList.getAccountNumber());
-                                        accountEmailData.setDigitalCommunicationData(accountList.getDigitalCommunicationInfo());
-                                        accountEmailDataList.add(accountEmailData);
-                                    }
-                                }
+                    if (userAccountInfoDataEachRow.getRowDeletedInd().equalsIgnoreCase("N")) {
+                        Query query = new Query();
+                        query.addCriteria(
+                                Criteria.where("accountNumber").is(userAccountInfoDataEachRow.getAccountNumber()));
+                        Account accountList = mongodbTemplate.findOne(query, Account.class);
+                        if (Objects.nonNull(accountList)) {
+                            if (CommonUtils.validateLast4Digits(accountList.getSsnTaxid(),
+                                    forgotPassRequest.getLast4SSN())) {
+                                accountEmailData.setAccountNumber(accountList.getAccountNumber());
+                                accountEmailData.setDigitalCommunicationData(accountList.getDigitalCommunicationInfo());
+                                accountEmailDataList.add(accountEmailData);
                             }
                         }
-                );
+                    }
+                });
         return accountEmailDataList;
     }
 
@@ -207,11 +223,15 @@ public class RegistrationDAOImpl implements RegistrationDAO {
 
         Query userManagementQuery = new Query();
 
-        /*userManagementQuery.addCriteria(
-                new Criteria().andOperator(Criteria.where("userId").is(toUpperCase(updateUserIdRequest.getUserId())),
-                        Criteria.where("uuid").is(updateUserIdRequest.getUuid())));*/
+        /*
+         * userManagementQuery.addCriteria(
+         * new Criteria().andOperator(Criteria.where("userId").is(toUpperCase(
+         * updateUserIdRequest.getUserId())),
+         * Criteria.where("uuid").is(updateUserIdRequest.getUuid())));
+         */
 
-        userManagementQuery.addCriteria(Criteria.where("userId").is(StringUtils.upperCase(updateUserIdRequest.getUserId())));
+        userManagementQuery
+                .addCriteria(Criteria.where("userId").is(StringUtils.upperCase(updateUserIdRequest.getUserId())));
 
         UserManagement userManagementRow = this.mongodbTemplate.findOne(userManagementQuery, UserManagement.class);
 
@@ -243,7 +263,8 @@ public class RegistrationDAOImpl implements RegistrationDAO {
                 accountEmailUIDData.setDigitalCommunicationData(accountList.getDigitalCommunicationInfo());
 
                 Query userQuery = new Query();
-                userQuery.addCriteria(new Criteria().andOperator(Criteria.where("userAccountInfo.accountNumber").is(forgotUIDRequest.getAccountNumber()),
+                userQuery.addCriteria(new Criteria().andOperator(
+                        Criteria.where("userAccountInfo.accountNumber").is(forgotUIDRequest.getAccountNumber()),
                         Criteria.where("userAccountInfo.rowDeletedInd").is("N")));
                 List<UserManagement> userManagementAllRows = this.mongodbTemplate.find(userQuery, UserManagement.class);
 
@@ -252,25 +273,29 @@ public class RegistrationDAOImpl implements RegistrationDAO {
                 }
                 userManagementAllRows.stream().filter(Objects::nonNull)
                         .forEach(userManagementUIDObject -> {
-                            List<UserAccountInfoData> userAccountInfoDataRows = userManagementUIDObject.getUserAccountInfo();
+                            List<UserAccountInfoData> userAccountInfoDataRows = userManagementUIDObject
+                                    .getUserAccountInfo();
                             userAccountInfoDataRows.stream().filter(Objects::nonNull)
                                     .forEach(userAccountInfoDataEachRow -> {
-                                                if (userAccountInfoDataEachRow.getRowDeletedInd().equalsIgnoreCase("N") &&
-                                                        userAccountInfoDataEachRow.getAccountNumber().equalsIgnoreCase(forgotUIDRequest.getAccountNumber())) {
+                                        if (userAccountInfoDataEachRow.getRowDeletedInd().equalsIgnoreCase("N") &&
+                                                userAccountInfoDataEachRow.getAccountNumber()
+                                                        .equalsIgnoreCase(forgotUIDRequest.getAccountNumber())) {
 
-                                                    UserIdAndBase64 userIdAndBase64 = new UserIdAndBase64();
+                                            UserIdAndBase64 userIdAndBase64 = new UserIdAndBase64();
 
-                                                    userIdAndBase64.setUserIdMasked(userManagementUIDObject.getUserId().replaceAll("(?<=.{2}).(?=[^@]*?.@)", "*"));
-                                                    userIdAndBase64.setUserIdBase64(Base64.getEncoder().encodeToString(userManagementUIDObject.getUserId().getBytes()));
+                                            userIdAndBase64.setUserIdMasked(userManagementUIDObject.getUserId()
+                                                    .replaceAll("(?<=.{2}).(?=[^@]*?.@)", "*"));
+                                            userIdAndBase64.setUserIdBase64(Base64.getEncoder()
+                                                    .encodeToString(userManagementUIDObject.getUserId().getBytes()));
 
-                                                    userIdAndBase64List.add(userIdAndBase64);
-                                                  }
-                                            }
-                                    );
+                                            userIdAndBase64List.add(userIdAndBase64);
+                                        }
+                                    });
                         });
                 accountEmailUIDData.setUserIdAndBase64(userIdAndBase64List);
             } else {
-                throw new CSSPServiceException(CSSPConstants.ACCOUNT_SSN_NOT_MATCH_ERROR, CSSPConstants.ACCOUNT_SSN_MATCH_ERROR_MSG);
+                throw new CSSPServiceException(CSSPConstants.ACCOUNT_SSN_NOT_MATCH_ERROR,
+                        CSSPConstants.ACCOUNT_SSN_MATCH_ERROR_MSG);
             }
         } else {
             throw new CSSPServiceException(CSSPConstants.ACCOUNT_NOT_FOUND_ERROR, CSSPConstants.ACCOUNT_NOT_FOUND_MSG);
@@ -291,5 +316,34 @@ public class RegistrationDAOImpl implements RegistrationDAO {
         query.addCriteria(Criteria.where("userId").is(userId.toUpperCase()));
         UserManagement userManagement = this.mongodbTemplate.findOne(query, UserManagement.class);
         return userManagement;
+    }
+
+    public boolean disableUser(String userId) throws CSSPServiceException {
+        this.cognitoDAOImpl.DisableUserInCognito(userId);
+        Query query = new Query();
+        query.addCriteria(Criteria.where("userId").is(userId.toUpperCase()));
+        UserManagement userManagement = this.mongodbTemplate.findOne(query, UserManagement.class);
+        if (Objects.isNull(userManagement)) {
+            throw new CSSPServiceException(CSSPConstants.USER_NOT_FOUND_ERROR, CSSPConstants.USER_NOT_FOUND_ERROR_MSG);
+        } else {
+            userManagement.setUserDisabledInd("Y");
+            this.mongodbTemplate.save(userManagement);
+
+        }
+        return true;
+    }
+
+    public boolean enableUser(String userId) throws CSSPServiceException {
+        this.cognitoDAOImpl.EnableUserInCognito(userId);
+        Query query = new Query();
+        query.addCriteria(Criteria.where("userId").is(userId.toUpperCase()));
+        UserManagement userManagement = this.mongodbTemplate.findOne(query, UserManagement.class);
+        if (Objects.isNull(userManagement)) {
+            throw new CSSPServiceException(CSSPConstants.USER_NOT_FOUND_ERROR, CSSPConstants.USER_NOT_FOUND_ERROR_MSG);
+        } else {
+            userManagement.setUserDisabledInd("N");
+            this.mongodbTemplate.save(userManagement);
+        }
+        return true;
     }
 }

@@ -18,6 +18,8 @@ public class UserManagement {
     private String userLastUpdatedTS;
     private List<UserAccountInfoData> userAccountInfo;
     private String userRole;
+    private String userDisabledInd;
+    private String passwordResetInd;
 
     public String getId() {
         return id;
@@ -81,6 +83,22 @@ public class UserManagement {
 
     public void setUserRole(String userRole) {
         this.userRole = userRole;
+    }
+
+    public String getUserDisabledInd() {
+        return userDisabledInd;
+    }
+
+    public void setUserDisabledInd(String userDisabledInd) {
+        this.userDisabledInd = userDisabledInd;
+    }
+
+    public String getPasswordResetInd() {
+        return passwordResetInd;
+    }
+
+    public void setPasswordResetInd(String passwordResetInd) {
+        this.passwordResetInd = passwordResetInd;
     }
 
 }

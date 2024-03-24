@@ -157,6 +157,7 @@ public class AccountLanderServiceDAOImpl implements AccountLanderServiceDAO {
         }
 
         landerListDataEachRow.setUserId(userManagementRowEachRow.getUserId());
+        landerListDataEachRow.setUserDisabledInd(userManagementRowEachRow.getUserDisabledInd());
         landerListDataEachRow.setDefaultAccountNumber(userManagementRowEachRow.getDefaultAccountNumber());
         landerListDataEachRow.setAccountData(accountDataList);
 

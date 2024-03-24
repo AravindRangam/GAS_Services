@@ -13,6 +13,8 @@ public class CSSPConstants {
     public static final String USER_ACCOUNT_NOT_FOUND_ERROR_MSG = "Invalid account combination.";
     public static final String USER_NOT_FOUND_ERROR = "user.not.found.error";
     public static final String USER_NOT_FOUND_ERROR_MSG = "Invalid User Id.";
+    public static final String DISABLE_USER_ERROR = "user.account.disabled.error";
+    public static final String ENABLE_USER_ERROR = "user.account.enabled.error";
 
     public static final String USER_ACCOUNT_EXISTS_ERROR =  "user.account.exists.error";
     public static final String USER_ACCOUNT_EXISTS_ERROR_MSG =  "User Account combination exist.";

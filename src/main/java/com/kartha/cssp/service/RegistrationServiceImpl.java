@@ -99,7 +99,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     public CsspServiceResponse resetPassword(UpdatePasswordRequest updatePasswordRequest) throws CSSPServiceException {
         CsspServiceResponse<String> csspGenericResponse = new CsspServiceResponse<String>();
         try {
-            registrationDAO.updatePassword(updatePasswordRequest);
+            registrationDAO.resetPassword(updatePasswordRequest);
             csspGenericResponse.setData("SUCCESS");
         } catch (Exception e) {
             log.error("Exception in updatePassword ", e);
@@ -195,6 +195,34 @@ public class RegistrationServiceImpl implements RegistrationService {
                     CSSPConstants.FAILED, e.getMessage()));
         }
         return csspServiceResponse;
+    }
+
+    public CsspServiceResponse disableUser(String userId) throws CSSPServiceException {
+        CsspServiceResponse<String> csspGenericResponse = new CsspServiceResponse<String>();
+        try {
+            if (registrationDAO.disableUser(userId)) {
+                csspGenericResponse.setData("SUCCESS");
+            }
+        } catch (Exception e) {
+            log.error("Exception in disableUser ", e);
+            csspGenericResponse.setMessage(new Messages(CSSPConstants.ERROR_CODE,
+                    CSSPConstants.FAILED, e.getMessage()));
+        }
+        return csspGenericResponse;
+    }
+
+    public CsspServiceResponse enableUser(String userId) throws CSSPServiceException {
+        CsspServiceResponse<String> csspGenericResponse = new CsspServiceResponse<String>();
+        try {
+            if (registrationDAO.enableUser(userId)) {
+                csspGenericResponse.setData("SUCCESS");
+            }
+        } catch (Exception e) {
+            log.error("Exception in enableUser ", e);
+            csspGenericResponse.setMessage(new Messages(CSSPConstants.ERROR_CODE,
+                    CSSPConstants.FAILED, e.getMessage()));
+        }
+        return csspGenericResponse;
     }
 
 }

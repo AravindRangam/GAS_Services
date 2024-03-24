@@ -23,4 +23,8 @@ public interface RegistrationService {
 
     CsspServiceResponse getAdminUser(String userId) throws CSSPServiceException;
 
+    CsspServiceResponse disableUser(String userId) throws CSSPServiceException;
+
+    CsspServiceResponse enableUser(String userId) throws CSSPServiceException;
+
 }

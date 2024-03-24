@@ -91,6 +91,24 @@ public class CognitoDAOImpl {
         cognitoClient.adminSetUserPassword(adminSetUserPasswordRequest);
     }
 
+    @Transactional
+    public void DisableUserInCognito(String userId) {
+        AWSCognitoIdentityProvider cognitoClient = getAmazonCognitoIdentityClient();
+        AdminDisableUserRequest adminDisableUserRequest = new AdminDisableUserRequest();
+        adminDisableUserRequest.setUserPoolId(appConfig.getUserPoolId());
+        adminDisableUserRequest.setUsername(userId);
+        cognitoClient.adminDisableUser(adminDisableUserRequest);
+    }
+
+    @Transactional
+    public void EnableUserInCognito(String userId) {
+        AWSCognitoIdentityProvider cognitoClient = getAmazonCognitoIdentityClient();
+        AdminEnableUserRequest adminEnableUserRequest = new AdminEnableUserRequest();
+        adminEnableUserRequest.setUserPoolId(appConfig.getUserPoolId());
+        adminEnableUserRequest.setUsername(userId);
+        cognitoClient.adminEnableUser(adminEnableUserRequest);
+    }
+
     /*
     This below code is needed for verification
     public  SpringSecurityUser signIn(AuthenticationRequestauthenticationRequest){

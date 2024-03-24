@@ -9,6 +9,8 @@ import com.kartha.cssp.response.CsspServiceResponse;
 import com.kartha.cssp.response.Messages;
 import com.kartha.cssp.service.RegistrationService;
 import com.kartha.cssp.utils.CSSPConstants;
+import com.kartha.cssp.utils.CommonUtils;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -74,7 +76,7 @@ public class ForgotUserIdPasswordController {
     @PostMapping(path = "/{userId}/resetPassword", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity resetPassword(@RequestBody UpdatePasswordRequest updatePasswordRequest,
                                      @PathVariable String userId) throws Exception {
-
+        updatePasswordRequest.setConfirmPassword(CommonUtils.generateRandomString(10));
         CsspServiceResponse csspServiceResponse = registrationService.resetPassword(updatePasswordRequest);
         if (Objects.nonNull(csspServiceResponse.getData())) {
             csspServiceResponse.setMessage(new Messages(CSSPConstants.UPDATE_PASSWORD_SUCCESS,
