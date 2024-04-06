@@ -4,6 +4,7 @@ import com.kartha.cssp.dao.AccountServiceDAO;
 import com.kartha.cssp.dao.ProgramsServiceDAO;
 import com.kartha.cssp.data.*;
 import com.kartha.cssp.exception.CSSPServiceException;
+import com.kartha.cssp.model.ViewBill;
 import com.kartha.cssp.request.AddRemoveAccountRequest;
 import com.kartha.cssp.request.EnrollUnenrollRequest;
 import com.kartha.cssp.request.SendEmailRequest;
@@ -202,6 +203,30 @@ public class AccountServiceImpl implements AccountService {
                     CSSPConstants.FAILED,e.getMessage()));
         }
         return csspGenericResponse;
+    }
+
+    public CsspServiceResponse getBill(String accountNumber) throws CSSPServiceException {
+        CsspServiceResponse<ViewBill> csspViewBill = new CsspServiceResponse<ViewBill>();
+        try {
+
+            csspViewBill.setData(accountServiceDAO.getBill(accountNumber));
+
+        } catch (CSSPServiceException e) {
+            log.error("CSSPServiceException in getBill ", e);
+            if (Objects.nonNull(e.getErrorCode()) &&
+                    CSSPConstants.ACCOUNT_NOT_FOUND_ERROR.equalsIgnoreCase(e.getErrorCode())) {
+                csspViewBill.setMessage(new Messages(CSSPConstants.ACCOUNT_NOT_FOUND_ERROR,CSSPConstants.FAILED,
+                        CSSPConstants.ACCOUNT_NOT_FOUND_MSG));
+            } else {
+                csspViewBill.setMessage(new Messages(CSSPConstants.ERROR_CODE,
+                        CSSPConstants.FAILED,e.getMessage()));
+            }
+        } catch (Exception e) {
+            log.error("Exception in getBill ", e);
+            csspViewBill.setMessage(new Messages(CSSPConstants.ERROR_CODE,
+                    CSSPConstants.FAILED,e.getMessage()));
+        }
+        return csspViewBill;
     }
 
 }

@@ -283,4 +283,24 @@ public class AccountServiceDAOImpl implements AccountServiceDAO {
         return "SUCCESS";
     }
 
+    public ViewBill getBill(String accountNumber) throws CSSPServiceException {
+
+        Query query = new Query();
+        query.addCriteria(Criteria.where("accountNumber").is(accountNumber));
+        List<ViewBill> viewBillList = mongodbTemplate.find(query, ViewBill.class);
+
+        if (Objects.nonNull(viewBillList)
+                && !viewBillList.isEmpty()) {
+
+            viewBillList.stream().filter(Objects::nonNull)
+                    .forEach(viewBill -> {
+                        viewBill.setNewCharges(viewBill.getNewCharges());
+                    });
+
+        } else {
+            throw new CSSPServiceException(CSSPConstants.ACCOUNT_NOT_FOUND_ERROR, CSSPConstants.ACCOUNT_NOT_FOUND_MSG);
+        }
+        return viewBillList.get(0);
+    }
+
 }

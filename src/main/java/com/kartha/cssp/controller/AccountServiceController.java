@@ -89,4 +89,14 @@ public class AccountServiceController {
         return new ResponseEntity<>(csspServiceResponse, HttpStatus.OK);
     }
 
+    @GetMapping(path = "/getBill/{accountNumber}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getBill(@PathVariable String accountNumber) throws Exception {
+
+        CsspServiceResponse csspServiceResponse = accountService.getBill(accountNumber);
+        if(Objects.nonNull(csspServiceResponse.getData())) {
+            csspServiceResponse.setMessage(new Messages("SUCCESS"));
+        }
+        return new ResponseEntity<>(csspServiceResponse, HttpStatus.OK);
+    }
+
 }

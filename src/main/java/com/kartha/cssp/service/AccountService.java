@@ -17,4 +17,6 @@ public interface AccountService {
 
     CsspServiceResponse sendEmail(SendEmailRequest sendEmailRequest) throws CSSPServiceException;
 
+    CsspServiceResponse getBill(String accountNumber) throws CSSPServiceException;
+
 }
