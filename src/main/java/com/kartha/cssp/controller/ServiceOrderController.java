@@ -1,6 +1,8 @@
 package com.kartha.cssp.controller;
 
+import com.kartha.cssp.request.ServiceRequestBody;
 import com.kartha.cssp.request.TransferRequest;
+import com.kartha.cssp.response.CsspListServiceResponse;
 import com.kartha.cssp.response.CsspServiceResponse;
 import com.kartha.cssp.response.Messages;
 import com.kartha.cssp.service.ServiceOrder;
@@ -32,6 +34,26 @@ public class ServiceOrderController {
     {
 
         CsspServiceResponse csspServiceResponse = serviceOrder.createServiceOrder(transferRequest, connectDisconnectTransfer);
+        if(Objects.nonNull(csspServiceResponse.getData())) {
+            csspServiceResponse.setMessage(new Messages("SUCCESS"));
+        }
+        return new ResponseEntity<>(csspServiceResponse, HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/serviceRequest", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity createServiceRequest(@RequestBody ServiceRequestBody requestBody)
+    {
+        CsspServiceResponse csspServiceResponse = serviceOrder.createServiceRequest(requestBody);
+        if(Objects.nonNull(csspServiceResponse.getData())) {
+            csspServiceResponse.setMessage(new Messages("SUCCESS"));
+        }
+        return new ResponseEntity<>(csspServiceResponse, HttpStatus.OK);
+    }
+
+    @GetMapping(path = "/serviceRequests", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getServiceRequests()
+    {
+        CsspListServiceResponse csspServiceResponse = serviceOrder.getServiceRequests();
         if(Objects.nonNull(csspServiceResponse.getData())) {
             csspServiceResponse.setMessage(new Messages("SUCCESS"));
         }

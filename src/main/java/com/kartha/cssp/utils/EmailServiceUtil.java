@@ -2,12 +2,21 @@ package com.kartha.cssp.utils;
 
 import com.kartha.cssp.data.AccountData;
 import com.kartha.cssp.data.DigitalCommunicationData;
+import com.kartha.cssp.data.ServiceRequestAttachment;
+import com.kartha.cssp.data.ServiceRequestData;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -54,7 +63,8 @@ public class EmailServiceUtil {
         msg.setTo(email);
         msg.setFrom("info@iwebtechservices.com");
         msg.setSubject("Your password to ProKartha has been reset!!!");
-        String messageBody = "Hi User, \n\nYour password has been reset to: " + resetPassword + "\n\nPlease login to the ProKartha and change your password.\n\nThanks,\nProKartha Team";
+        String messageBody = "Hi User, \n\nYour password has been reset to: " + resetPassword
+                + "\n\nPlease login to the ProKartha and change your password.\n\nThanks,\nProKartha Team";
         msg.setText(messageBody);
         sendEmail(email, msg);
     }
@@ -100,7 +110,7 @@ public class EmailServiceUtil {
         } else if (emailTemplate.equalsIgnoreCase(CSSPConstants.EMAIL_ENROLL_ONLINE_PAYMENT)) {
             msg.setSubject("Hello User");
             msg.setText("Online Payment enrollment completed !!! ");
-        } else if(emailTemplate.equalsIgnoreCase(CSSPConstants.RESET_PASSWORD_SUCCESS)) {
+        } else if (emailTemplate.equalsIgnoreCase(CSSPConstants.RESET_PASSWORD_SUCCESS)) {
             msg.setSubject("Hello User");
             // can you add a proper message here? with footer and header
             msg.setText("Password reset successful! \n - The ProKartha Team");
@@ -114,7 +124,8 @@ public class EmailServiceUtil {
     public void sendEmail(String emailAddress, SimpleMailMessage msg) {
         // List of specific email addresses to check
         emailAddress = emailAddress.toLowerCase();
-        List<String> specificEmails = Arrays.asList("suman.chimata@gmail.com", "sunil.s@iwebte.com", "vizaykris@gmail.com");
+        List<String> specificEmails = Arrays.asList("suman.chimata@gmail.com", "sunil.s@iwebte.com",
+                "vizaykris@gmail.com");
 
         // List of domains to check
         List<String> domains = Arrays.asList("iwebtechservices.com", "iwebte.com");
@@ -122,10 +133,49 @@ public class EmailServiceUtil {
         // Extract the domain from the email address
         String domain = emailAddress.substring(emailAddress.indexOf("@") + 1);
 
-        // Check if the email address is in the specific list or the domain is in the domain list
+        // Check if the email address is in the specific list or the domain is in the
+        // domain list
         if (specificEmails.contains(emailAddress) || domains.contains(domain)) {
             javaMailSender.send(msg);
         }
+    }
+
+    public void sendEmailWithAttachment(String emailAddress, ServiceRequestData data,
+            List<ServiceRequestAttachment> attachments) throws MessagingException {
+        MimeMessage message = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+        helper.setTo("info@iwebte.com");
+        helper.setCc("suman.c@iwebte.com");
+        // helper.setTo("sunil.s@iwebte.com");
+        helper.setFrom(emailAddress);
+        helper.setSubject("ProKartha - Service Request Created Successfully");
+        helper.setText("Service Request Created Successfully by " + data.getFirstName() + " " + data.getLastName());
+
+        // construct a template based on ServiceRequestData
+        StringBuilder sb = new StringBuilder();
+        sb.append("Service Request Created Successfully\n\n");
+        sb.append("Primary Category: " + data.getPrimaryCategory() + "\n");
+        sb.append("Secondary Category: " + data.getSecondaryCategory() + "\n");
+        sb.append("First Name: " + data.getFirstName() + "\n");
+        sb.append("Last Name: " + data.getLastName() + "\n");
+        sb.append("Email: " + data.getEmail() + "\n");
+        sb.append("Phone Number: " + data.getPhoneNumber() + "\n");
+        sb.append("Account Number: " + data.getAccountNumber() + "\n");
+        sb.append("Street Address: " + data.getStreetAddress() + "\n");
+        sb.append("City: " + data.getCity() + "\n");
+        sb.append("State: " + data.getState() + "\n");
+        sb.append("Zip Code: " + data.getZipCode() + "\n");
+        sb.append("Message: " + data.getMessage() + "\n");
+
+        helper.setText(sb.toString());
+
+        // add attachments
+        for (ServiceRequestAttachment attachment : attachments) {
+            byte[] doc = Base64.getMimeDecoder().decode(attachment.getEncodedData());
+            helper.addAttachment(attachment.getName(), new ByteArrayResource(doc));
+        }
+
+        javaMailSender.send(message);
     }
 
 }

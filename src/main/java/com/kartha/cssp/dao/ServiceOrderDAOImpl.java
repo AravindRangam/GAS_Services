@@ -4,10 +4,15 @@ import com.kartha.cssp.data.*;
 import com.kartha.cssp.exception.CSSPServiceException;
 import com.kartha.cssp.model.Account;
 import com.kartha.cssp.model.ServiceOrderDoc;
+import com.kartha.cssp.model.ServiceRequests;
 import com.kartha.cssp.model.UserManagement;
+import com.kartha.cssp.request.ServiceRequestBody;
 import com.kartha.cssp.request.TransferRequest;
 import com.kartha.cssp.utils.CSSPConstants;
 import com.kartha.cssp.utils.CommonUtils;
+import com.kartha.cssp.utils.EmailServiceUtil;
+
+import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +39,12 @@ public class ServiceOrderDAOImpl implements ServiceOrderDAO {
     int newPremiseNumber = 787600003;
     int newBusinessPartner = 500000003;
 
+    EmailServiceUtil emailServiceUtil;
+
     @Autowired
-    public ServiceOrderDAOImpl(MongoTemplate mongodbTemplate) {
+    public ServiceOrderDAOImpl(MongoTemplate mongodbTemplate, EmailServiceUtil emailServiceUtil) {
         this.mongodbTemplate = mongodbTemplate;
+        this.emailServiceUtil = emailServiceUtil;
     }
 
     public ServiceOrderData createServiceOrder(TransferRequest transferRequest, String connectDisconnectTransfer)
@@ -258,5 +266,75 @@ public class ServiceOrderDAOImpl implements ServiceOrderDAO {
         serviceOrderData.setMiddleName(transferRequest.getMiddleName());
         serviceOrderData.setLastName(transferRequest.getLastName());
         return serviceOrderData;
+    }
+
+    public Boolean createServiceRequest(ServiceRequestBody serviceRequestBody) throws CSSPServiceException {
+
+        ServiceRequests serviceRequests = new ServiceRequests();
+        serviceRequests.setPrimaryCategory(serviceRequestBody.getPrimaryCategory());
+        serviceRequests.setSecondaryCategory(serviceRequestBody.getSecondaryCategory());
+        serviceRequests.setFirstName(serviceRequestBody.getFirstName());
+        serviceRequests.setLastName(serviceRequestBody.getLastName());
+        serviceRequests.setEmail(serviceRequestBody.getEmail());
+        serviceRequests.setPhoneNumber(serviceRequestBody.getPhoneNumber());
+        serviceRequests.setAccountNumber(serviceRequestBody.getAccountNumber());
+        serviceRequests.setStreetAddress(serviceRequestBody.getStreetAddress());
+        serviceRequests.setCity(serviceRequestBody.getCity());
+        serviceRequests.setState(serviceRequestBody.getState());
+        serviceRequests.setZipCode(serviceRequestBody.getZipCode());
+        serviceRequests.setMessage(serviceRequestBody.getMessage());
+        serviceRequests.setAttachments(serviceRequestBody.getAttachments());
+
+        serviceRequests = this.mongodbTemplate.save(serviceRequests);
+
+        ServiceRequestData serviceRequestData = new ServiceRequestData();
+        serviceRequestData.setPrimaryCategory(serviceRequests.getPrimaryCategory());
+        serviceRequestData.setSecondaryCategory(serviceRequests.getSecondaryCategory());
+        serviceRequestData.setFirstName(serviceRequests.getFirstName());
+        serviceRequestData.setLastName(serviceRequests.getLastName());
+        serviceRequestData.setEmail(serviceRequests.getEmail());
+        serviceRequestData.setPhoneNumber(serviceRequests.getPhoneNumber());
+        serviceRequestData.setAccountNumber(serviceRequests.getAccountNumber());
+        serviceRequestData.setStreetAddress(serviceRequests.getStreetAddress());
+        serviceRequestData.setCity(serviceRequests.getCity());
+        serviceRequestData.setState(serviceRequests.getState());
+        serviceRequestData.setZipCode(serviceRequests.getZipCode());
+        serviceRequestData.setMessage(serviceRequests.getMessage());
+        serviceRequestData.setAttachments(serviceRequests.getAttachments());
+
+        try {
+            emailServiceUtil.sendEmailWithAttachment(serviceRequestData.getEmail(), serviceRequestData, serviceRequestData.getAttachments());
+        } catch (MessagingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+
+        return true;
+
+    }
+
+    public List<ServiceRequestData> getServiceRequests() {
+        List<ServiceRequests> serviceRequestsDataList = this.mongodbTemplate.findAll(ServiceRequests.class);
+        List<ServiceRequestData> serviceRequestDataList = new ArrayList<>();
+        for (ServiceRequests serviceRequests : serviceRequestsDataList) {
+            ServiceRequestData serviceRequestData = new ServiceRequestData();
+            serviceRequestData.setPrimaryCategory(serviceRequests.getPrimaryCategory());
+            serviceRequestData.setSecondaryCategory(serviceRequests.getSecondaryCategory());
+            serviceRequestData.setFirstName(serviceRequests.getFirstName());
+            serviceRequestData.setLastName(serviceRequests.getLastName());
+            serviceRequestData.setEmail(serviceRequests.getEmail());
+            serviceRequestData.setPhoneNumber(serviceRequests.getPhoneNumber());
+            serviceRequestData.setAccountNumber(serviceRequests.getAccountNumber());
+            serviceRequestData.setStreetAddress(serviceRequests.getStreetAddress());
+            serviceRequestData.setCity(serviceRequests.getCity());
+            serviceRequestData.setState(serviceRequests.getState());
+            serviceRequestData.setZipCode(serviceRequests.getZipCode());
+            serviceRequestData.setMessage(serviceRequests.getMessage());
+            serviceRequestData.setAttachments(serviceRequests.getAttachments());
+            serviceRequestDataList.add(serviceRequestData);
+        }
+        return serviceRequestDataList;
+        
     }
 }
