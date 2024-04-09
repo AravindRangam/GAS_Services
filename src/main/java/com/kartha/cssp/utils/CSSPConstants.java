@@ -91,4 +91,8 @@ public class CSSPConstants {
     public static final String EMAIL_ENROLL_PAY_EXTEND = "EMAIL_ENROLL_PAY_EXTEND";
     public static final String EMAIL_ENROLL_ONLINE_PAYMENT = "EMAIL_ENROLL_ONLINE_PAYMENT";
 
+    // OUTAGES
+    public static final String OUTAGE_NOT_FOUND_ERROR = "outage.not.found.error";
+    public static final String OUTAGE_NOT_FOUND_MSG = "Outages not found.";
+
 }

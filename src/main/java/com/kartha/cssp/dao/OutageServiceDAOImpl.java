@@ -1,10 +1,12 @@
 package com.kartha.cssp.dao;
 
 import com.kartha.cssp.data.AccountData;
+import com.kartha.cssp.data.OutageData;
 import com.kartha.cssp.data.OutageInfo;
 import com.kartha.cssp.data.OutageInfoModel;
 import com.kartha.cssp.exception.CSSPServiceException;
 import com.kartha.cssp.model.Account;
+import com.kartha.cssp.model.Outages;
 import com.kartha.cssp.request.OutageServiceRequest;
 import com.kartha.cssp.utils.CSSPConstants;
 import com.kartha.cssp.utils.CommonUtils;
@@ -164,6 +166,38 @@ public class OutageServiceDAOImpl implements OutageServiceDAO {
         outageInfoModel.setAnyPets(outageServiceRequest.getAnyPets());
 
         return outageInfoModel;
+    }
+
+    public List<OutageData> retrieveOutageDetails() throws CSSPServiceException {
+
+        Query query = new Query();
+        List<OutageData> outageInfoList = new ArrayList<OutageData>();
+
+        Criteria criteria = new Criteria();
+        criteria.and("serviceRestored").is(false);
+
+        List<Outages> OutageInfoList = mongodbTemplate.find(query, Outages.class);
+
+        if(OutageInfoList.isEmpty()) {
+            throw new CSSPServiceException(CSSPConstants.OUTAGE_NOT_FOUND_ERROR, CSSPConstants.OUTAGE_NOT_FOUND_MSG);
+        }
+
+        for(Outages outages: OutageInfoList) {
+            OutageData outageData = new OutageData();
+
+            outageData.setId(outages.getId());
+            outageData.setLatitude(outages.getLatitude());
+            outageData.setLongitude(outages.getLongitude());
+            outageData.setLineOfService(outages.getLineOfService());
+            outageData.setServiceRestored(outages.getServiceRestored());
+            outageData.setFullPartial(outages.getFullPartial());
+            outageData.setMessage(outages.getMessage());
+            outageData.setRestorationEstimatedDate(outages.getRestorationEstimatedDate());
+
+            outageInfoList.add(outageData);
+        }
+
+        return outageInfoList;
     }
 
 

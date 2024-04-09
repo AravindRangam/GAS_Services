@@ -10,4 +10,6 @@ public interface OutageService {
     CsspListServiceResponse validateOutageAddress(OutageServiceRequest outageServiceRequest) throws CSSPServiceException;
 
     CsspServiceResponse saveOutageDetails(OutageServiceRequest outageServiceRequest) throws CSSPServiceException;
+
+    CsspListServiceResponse retrieveOutageDetails() throws CSSPServiceException;
 }

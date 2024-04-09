@@ -2,6 +2,7 @@ package com.kartha.cssp.service;
 
 import com.kartha.cssp.dao.OutageServiceDAO;
 import com.kartha.cssp.data.AccountData;
+import com.kartha.cssp.data.OutageData;
 import com.kartha.cssp.exception.CSSPServiceException;
 import com.kartha.cssp.request.OutageServiceRequest;
 import com.kartha.cssp.response.CsspListServiceResponse;
@@ -65,6 +66,20 @@ public class OutageServiceImpl implements OutageService {
                     CSSPConstants.FAILED,e.getMessage()));
         }
         return csspGenericResponse;
+    }
+
+    public CsspListServiceResponse retrieveOutageDetails() throws CSSPServiceException {
+        CsspListServiceResponse<OutageData> csspOutageData = new CsspListServiceResponse<OutageData>();
+        try {
+
+            csspOutageData.setData(outageServiceDAO.retrieveOutageDetails());
+
+        } catch (Exception e) {
+            log.error("Exception in retrieveOutageDetails ", e);
+            csspOutageData.setMessage(new Messages(CSSPConstants.ERROR_CODE,
+                    CSSPConstants.FAILED,e.getMessage()));
+        }
+        return csspOutageData;
     }
 
 }

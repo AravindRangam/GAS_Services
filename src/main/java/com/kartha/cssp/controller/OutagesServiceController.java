@@ -46,4 +46,14 @@ public class OutagesServiceController {
         }
         return new ResponseEntity<>(csspServiceResponse, HttpStatus.OK);
     }
+
+    @GetMapping(path = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity retrieveOutageDetails()
+    {
+        CsspListServiceResponse csspServiceResponse = this.outageService.retrieveOutageDetails();
+        if(Objects.nonNull(csspServiceResponse.getData())) {
+            csspServiceResponse.setMessage(new Messages("SUCCESS"));
+        }
+        return new ResponseEntity<>(csspServiceResponse, HttpStatus.OK);
+    }
 }
