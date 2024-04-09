@@ -8,6 +8,7 @@ import com.kartha.cssp.data.AddressData;
 import com.kartha.cssp.data.ProgramsData;
 import com.kartha.cssp.exception.CSSPServiceException;
 import com.kartha.cssp.request.AccountLookupRequest;
+import com.kartha.cssp.request.AccountSearchRequest;
 import com.kartha.cssp.request.ValidateAccountSSNRequest;
 import com.kartha.cssp.response.*;
 import com.kartha.cssp.utils.CSSPConstants;
@@ -106,6 +107,19 @@ public class AccountLookupServiceImpl implements AccountLookupService {
         CsspListServiceResponse<AccountLookUpData> csspAccountLookUpData = new CsspListServiceResponse<AccountLookUpData>();
         try {
             csspAccountLookUpData.setData(accountLookupDAO.matchNGetAccountInfo(accountLookupRequest));
+        } catch (Exception e) {
+            log.error("Exception in Account Lookup ",e);
+            csspAccountLookUpData.setMessage(new Messages(CSSPConstants.ACCOUNT_NOT_FOUND_ERROR,
+                    CSSPConstants.FAILED,CSSPConstants.ACCOUNT_NOT_FOUND_MSG));
+        }
+
+        return csspAccountLookUpData;
+    }
+
+    public CsspListServiceResponse searchAccount(AccountSearchRequest accountSearchRequest) throws CSSPServiceException {
+        CsspListServiceResponse<AccountLookUpData> csspAccountLookUpData = new CsspListServiceResponse<AccountLookUpData>();
+        try {
+            csspAccountLookUpData.setData(accountLookupDAO.searchAccount(accountSearchRequest));
         } catch (Exception e) {
             log.error("Exception in Account Lookup ",e);
             csspAccountLookUpData.setMessage(new Messages(CSSPConstants.ACCOUNT_NOT_FOUND_ERROR,

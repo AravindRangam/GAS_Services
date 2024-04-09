@@ -1,6 +1,7 @@
 package com.kartha.cssp.controller;
 
 import com.kartha.cssp.request.AccountLookupRequest;
+import com.kartha.cssp.request.AccountSearchRequest;
 import com.kartha.cssp.request.ValidateAccountSSNRequest;
 import com.kartha.cssp.response.CsspListServiceResponse;
 import com.kartha.cssp.response.CsspServiceResponse;
@@ -14,6 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @Slf4j
 @RestController
@@ -49,5 +53,16 @@ public class AccountLookupController {
         }
         return new ResponseEntity<>(csspListServiceResponse, HttpStatus.OK);
     }
+
+    @PostMapping(path = "/accountSearch", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity accountSearch(@RequestBody AccountSearchRequest accountSearchRequest) throws Exception {
+
+        CsspListServiceResponse csspListServiceResponse = accountLookupService.searchAccount(accountSearchRequest);
+        if(Objects.nonNull(csspListServiceResponse.getData())) {
+            csspListServiceResponse.setMessage(new Messages("SUCCESS"));
+        }
+        return new ResponseEntity<>(csspListServiceResponse, HttpStatus.OK);
+    }
+    
 
 }

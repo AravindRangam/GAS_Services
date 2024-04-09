@@ -5,6 +5,7 @@ import com.kartha.cssp.data.AddressData;
 import com.kartha.cssp.exception.CSSPServiceException;
 import com.kartha.cssp.model.Account;
 import com.kartha.cssp.request.AccountLookupRequest;
+import com.kartha.cssp.request.AccountSearchRequest;
 import com.kartha.cssp.utils.CSSPConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +80,58 @@ public class AccountLookupDAOImpl implements AccountLookupDAO {
                 } else {
                     throw new CSSPServiceException(CSSPConstants.ACCOUNT_NOT_FOUND_ERROR, CSSPConstants.ACCOUNT_NOT_FOUND_MSG);
                 }
+            } else {
+                throw new CSSPServiceException(CSSPConstants.ACCOUNT_NOT_FOUND_ERROR, CSSPConstants.ACCOUNT_NOT_FOUND_MSG);
+            }
+        }
+        return accountLookUpDataList;
+    }
+
+    public List<AccountLookUpData> searchAccount(AccountSearchRequest searchRequest) {
+        accountLookUpDataList = new ArrayList<AccountLookUpData>();
+        Query query = new Query();
+        Criteria criteriaInput = new Criteria();
+
+        // Check for accountNumber first
+        if (!searchRequest.getAccountNumber().isEmpty()) {
+            criteriaInput.and("accountNumber").is(searchRequest.getAccountNumber());
+        }
+
+        // Then check for phoneNo
+        if (!searchRequest.getPhoneNo().isEmpty()) {
+            criteriaInput.and("digitalCommunicationInfo.communicationType").is("phone_no");
+            criteriaInput.and("digitalCommunicationInfo.communicateTo").is(searchRequest.getPhoneNo());
+        }
+
+        // Finally, check for address.zip
+        criteriaInput.and("address.zip").is(searchRequest.getZipCode());
+        query.addCriteria(criteriaInput);
+
+        List<Account> accountInfoList = mongodbTemplate.find(query, Account.class);
+
+        // Loop through the returned data
+        if (accountInfoList.isEmpty()) {
+            throw new CSSPServiceException(CSSPConstants.ACCOUNT_NOT_FOUND_ERROR, CSSPConstants.ACCOUNT_NOT_FOUND_MSG);
+        }
+        for (Account userAccountInfoDataEachRow : accountInfoList) {
+            if (userAccountInfoDataEachRow != null) {
+                accountLookUpData.setAccountNumber(userAccountInfoDataEachRow.getAccountNumber());
+                accountLookUpData.setBusinessPartnerNumber(userAccountInfoDataEachRow.getBusinessPartnerNumber());
+                accountLookUpData.setFirstName(userAccountInfoDataEachRow.getFirstName());
+                accountLookUpData.setMiddleName(userAccountInfoDataEachRow.getMiddleName());
+                accountLookUpData.setLastName(userAccountInfoDataEachRow.getLastName());
+                accountLookUpData.setPremiseNumber(userAccountInfoDataEachRow.getPremiseNumber());
+                if (userAccountInfoDataEachRow.getAddress().isEmpty()) {
+                    throw new CSSPServiceException("ACCOUNT_INFO_INCONSISTENT_ERROR", CSSPConstants.ACCOUNT_NOT_FOUND_MSG);
+                }
+                for (AddressData addressDataEachRow : userAccountInfoDataEachRow.getAddress()) {
+                    if (addressDataEachRow != null) {
+                        if (addressDataEachRow.getAddressType().equals("PREMISE")) {
+                            accountLookUpData.setAddress(addressDataEachRow);
+                        }
+                    }
+                }
+                accountLookUpDataList.add(accountLookUpData);
             } else {
                 throw new CSSPServiceException(CSSPConstants.ACCOUNT_NOT_FOUND_ERROR, CSSPConstants.ACCOUNT_NOT_FOUND_MSG);
             }
