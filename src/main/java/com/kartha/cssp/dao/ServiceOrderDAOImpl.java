@@ -206,21 +206,24 @@ public class ServiceOrderDAOImpl implements ServiceOrderDAO {
                 queryUserId.addCriteria(new Criteria().andOperator(Criteria.where("userId").is(transferRequest.getUserId().toUpperCase())));
 
                 userManagement = mongodbTemplate.findOne(queryUserId, UserManagement.class);
-                List<UserAccountInfoData> userAccountInfoDataList = userManagement.getUserAccountInfo();
-                if (Objects.nonNull(userManagement)) {
-                    UserAccountInfoData userAccountInfoData = new UserAccountInfoData();
-                    userAccountInfoData.setAccountNumber(Integer.toString(newAccountNumber));
-                    userAccountInfoData.setNickName("");
-                    userAccountInfoData.setRowCreatedTs(CommonUtils.getCurrentTimeStamp());
-                    userAccountInfoData.setRowUpdatedTS(CommonUtils.getCurrentTimeStamp());
-                    userAccountInfoData.setRowDeletedInd("N");
-                    userAccountInfoData.setUserAccountRelation("");
-                    userAccountInfoData.setAccountAddedFrom(connectDisconnectTransfer);
-                    userAccountInfoData.setAccountAddedBy(transferRequest.getUserId().toUpperCase());
-                    userAccountInfoData.setDefaultAccount("N");
-                    userAccountInfoData.setDefaultAccountChangeTS(CommonUtils.getCurrentTimeStamp());
-                    userAccountInfoDataList.add(userAccountInfoData);
+                if(Objects.nonNull(userManagement)) {
+                    List<UserAccountInfoData> userAccountInfoDataList = userManagement.getUserAccountInfo();
+                    if (Objects.nonNull(userManagement)) {
+                        UserAccountInfoData userAccountInfoData = new UserAccountInfoData();
+                        userAccountInfoData.setAccountNumber(Integer.toString(newAccountNumber));
+                        userAccountInfoData.setNickName("");
+                        userAccountInfoData.setRowCreatedTs(CommonUtils.getCurrentTimeStamp());
+                        userAccountInfoData.setRowUpdatedTS(CommonUtils.getCurrentTimeStamp());
+                        userAccountInfoData.setRowDeletedInd("N");
+                        userAccountInfoData.setUserAccountRelation("");
+                        userAccountInfoData.setAccountAddedFrom(connectDisconnectTransfer);
+                        userAccountInfoData.setAccountAddedBy(transferRequest.getUserId().toUpperCase());
+                        userAccountInfoData.setDefaultAccount("N");
+                        userAccountInfoData.setDefaultAccountChangeTS(CommonUtils.getCurrentTimeStamp());
+                        userAccountInfoDataList.add(userAccountInfoData);
+                    }
                 }
+                
             }
 //            Add new Account into Account_Info Table
 
